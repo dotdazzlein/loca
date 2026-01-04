@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, type SetStateAction } from "react";
 import { BiLock, BiRightArrow } from "react-icons/bi";
 import { RxCross2 } from "react-icons/rx";
 import { useUser } from "../../../context/UserContext";
@@ -10,6 +10,7 @@ export default function EditProfile() {
 
     const [about, setAbout] = useState("");
     const maxChars = 250;
+    const [editNameModal,setEditNameModal] = useState<boolean>(false)
 
 
     return (
@@ -48,7 +49,7 @@ export default function EditProfile() {
                     <label className="mb-1 block text-sm font-medium text-gray-800">
                         Name
                     </label>
-                    <div className="flex items-center cursor-pointer justify-between bg-gray-100 p-3 rounded-xl border border-gray-400/30">
+                    <div onClick={() => setEditNameModal(true)} className="flex items-center cursor-pointer justify-between bg-gray-100 p-3 rounded-xl border border-gray-400/30">
                         <div className="flex items-center gap-2">
                             <BiLock />
                             <p className="font-semibold text-gray-700 ">{user.name}</p>
@@ -83,6 +84,64 @@ export default function EditProfile() {
                     Save
                 </button>
             </div>
+            <EditName editNameModal={editNameModal} setEditNameModal={setEditNameModal}/>
         </div>
     );
+}
+
+
+function EditName({editNameModal, setEditNameModal} : {editNameModal : boolean, setEditNameModal : React.Dispatch<SetStateAction<boolean>>}) {
+//   const [name, setName] = useState(initialName);
+  const maxLength = 20;
+
+  if (!editNameModal) return null;
+  const {user} = useUser()
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/30" onClick={(e) => {
+        e.stopPropagation()
+        setEditNameModal(false)}
+    }>
+      <div className="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="mb-5 flex items-center justify-between gap-2">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Edit name
+          </h2>
+          <button
+            onClick={() => setEditNameModal(false)}
+            className="flex h-8 w-8 text-xl items-center justify-center rounded-full cursor-pointer"
+            aria-label="Back"
+          >
+          <RxCross2 />
+          </button>
+        </div>
+
+        {/* Input */}
+        <div className="mb-2">
+          <input
+            defaultValue={user?.name}
+            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 focus:border-black focus:outline-none"
+          />
+          <div className="mt-1 text-right text-xs text-gray-400">
+            {/* {name.length}/{maxLength} */}
+          </div>
+        </div>
+
+        {/* Info Text */}
+        <p className="mb-6 text-xs text-gray-500 leading-relaxed">
+          To change name, please download mobile app and
+          subscribe to LOCA plus.
+        </p>
+
+        {/* Save Button (Disabled State) */}
+        <button
+          disabled
+          className="w-full cursor-not-allowed rounded-full bg-gray-200 py-3 text-sm font-semibold text-gray-400"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  );
 }
