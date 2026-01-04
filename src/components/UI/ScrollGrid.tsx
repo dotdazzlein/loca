@@ -1,6 +1,6 @@
 export default function ScrollGrid() {
   return (
-    <div className="min-h-screen w-full px-6">
+    <div className="min-h-screen w-full bg-white">
       <div className="grid grid-cols-3 gap-6">
         <InfiniteColumn direction="down" img="/scrollgrid/img1.webp" />
         <InfiniteColumn direction="up" img="/scrollgrid/img2.webp" />

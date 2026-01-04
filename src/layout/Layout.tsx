@@ -3,6 +3,7 @@ import Header from '../components/Header'
 import { Outlet } from 'react-router-dom'
 import Onboarding from '../components/Modals/onboarding/Onboarding'
 import Signin from '../components/Modals/Signin'
+import EditProfile from '../components/Modals/onboarding/EditPorfile'
 
 const Layout = () => {
     return (
@@ -16,6 +17,7 @@ const Layout = () => {
             {/* Modal */}
             <Signin />
             <Onboarding />
+            <EditProfile />
         </div>
     )
 }

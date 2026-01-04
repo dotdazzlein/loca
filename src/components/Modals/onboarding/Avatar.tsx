@@ -81,7 +81,7 @@ const Avatar = ({ onNext }: AvatarProps) => {
                         {/* Camera icon in bottom right */}
                         <div className='absolute bottom-2 right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-lg'>
                             <svg 
-                                className="w-6 h-6 text-black" 
+                                className="w-6 h-6 text-white" 
                                 fill="none" 
                                 stroke="currentColor" 
                                 viewBox="0 0 24 24"
@@ -106,9 +106,9 @@ const Avatar = ({ onNext }: AvatarProps) => {
             <div>
                 <button 
                     onClick={handleNext}
-                    className='bg-primary cursor-pointer text-black w-full py-3 rounded-3xl font-semibold hover:bg-primary/90 transition-all'
+                    className='bg-primary cursor-pointer text-white w-full py-3 rounded-3xl font-semibold hover:bg-primary/90 transition-all'
                 >
-                    Next
+                    Done
                 </button>
             </div>
         </div>

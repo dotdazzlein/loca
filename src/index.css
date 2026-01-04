@@ -6,21 +6,21 @@
 }
 
 .bg-primary {
-    background: aqua;
+    background: #39beff;
 }
 .bg-secondary {
-    background:  #222222;
+    background:  #ECECEC;
 }
 .bg-third {
     background:  #333333;
 }
 
 .border-primary {
-    border-color: aqua;
+    border-color: #39beff;
 }
 
 .outline-primary {
-    outline-color: aqua;
+    outline-color: #39beff;
 }
 
 
@@ -70,8 +70,23 @@
   animation: slideIn 0.2s ease-out;
 }
 
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
 
-/* From Uiverse.io by anand_4957 */ 
+.animate-slideUp {
+  animation: slideUp 0.5s ease-out;
+}
+
+
+/* steam loading animation  */ 
 .container {
   display: flex;
   height: 370px;
@@ -341,4 +356,18 @@
     sans-serif;
   fill: #95d5ff;
   filter: drop-shadow(0 2px 8px rgb(21, 117, 207));
+}
+
+
+/* hide increament button from number input */
+/* Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
 }

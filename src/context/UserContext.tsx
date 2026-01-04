@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, type SetStateAction } from 'react';
 
 export interface User {
   id: string;
@@ -19,9 +19,11 @@ interface UserContextType {
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
   signinModal: boolean;
-  setSigninModal: any
+  setSigninModal: React.Dispatch<SetStateAction<boolean>>
   onboarding: boolean;
-  setOnboarding: any
+  setOnboarding: React.Dispatch<SetStateAction<boolean>>;
+  editProfile : boolean;
+  setEditProfile : React.Dispatch<SetStateAction<boolean>>
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -34,6 +36,7 @@ export function UserProvider({ children }: { children: any }) {
   // components states
   const [signinModal,setSigninModal] = useState<boolean>(false)
   const [onboarding, setOnboarding] = useState<boolean>(false)
+  const [editProfile,setEditProfile] = useState<boolean>(false)
 
   useEffect(() => {
     try {
@@ -80,7 +83,8 @@ export function UserProvider({ children }: { children: any }) {
     logout,
     updateUser,
     signinModal,setSigninModal,
-    onboarding, setOnboarding
+    onboarding, setOnboarding,
+    editProfile,setEditProfile
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

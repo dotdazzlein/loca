@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const Gender = () => {
+const Gender = ({onNext} : {onNext : () => void }) => {
     const [selectedGender, setSelectedGender] = useState<string | null>(null)
 
     const genders = ['Male', 'Female', 'Others']
@@ -17,8 +17,8 @@ const Gender = () => {
                             onClick={() => setSelectedGender(gender)}
                             className={`px-3 py-3 cursor-pointer rounded-3xl w-full border transition-all ${
                                 selectedGender === gender
-                                    ? 'bg-primary border-primary text-black font-semibold'
-                                    : 'bg-secondary border-gray-300'
+                                    ? 'bg-primary border-primary text-white font-semibold'
+                                    : 'bg-gray-300 border-gray-400/20'
                             }`}
                         >
                             {gender}
@@ -28,7 +28,7 @@ const Gender = () => {
 
             </div>
             <div>
-                <button className='bg-primary cursor-pointer text-black w-full py-3  rounded-3xl font-semibold'>Next</button>
+                <button onClick={onNext} className='bg-primary cursor-pointer text-white w-full py-3  rounded-3xl font-semibold'>Next</button>
             </div>
         </div>
     )
