@@ -7,35 +7,51 @@ import ScrollGrid from "../components/UI/ScrollGrid";
 import StreamLoading from "../components/Loading/StreamLoading";
 import UserMatched from "../components/UI/UserMatched";
 
-const VideoCall  : React.FC = () => {
+const VideoCall: React.FC = () => {
   const { user } = useUser();
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
+  const [hasMediaPermission, setHasMediaPermission] = useState<boolean | null>(true);
+  const [permissionError, setPermissionError] = useState<string | null>(null);
+
+
   const [partner, setPartner] = useState<{ name?: string; image?: string; } | null>(null);
 
   const localStreamRef = useRef<MediaStream | null>(null);
   const peerRef = useRef<RTCPeerConnection | null>(null);
   const partnerIdRef = useRef<string | null>(null);
 
-  const [searching, setSearching] = useState(false); // clicked start
-  const [matched, setMatched] = useState(false);     // partner found
-  const [connected, setConnected] = useState(false); // video connected
+  const [searching, setSearching] = useState(false);
+  const [matched, setMatched] = useState(false);
+  const [connected, setConnected] = useState(false);
 
-
+  const showControls = searching || matched || connected;
 
   useEffect(() => {
-    (async () => {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user" },
-        audio: true,
-      });
+    const getMedia = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" },
+          audio: true,
+        });
 
-      localStreamRef.current = stream;
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
+        localStreamRef.current = stream;
+
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream;
+        }
+
+        setHasMediaPermission(true);
+      } catch (error) {
+        console.error("Media permission denied:", error);
+        setHasMediaPermission(false);
+        setPermissionError("Camera or microphone permission denied");
       }
-    })();
+    };
+
+    getMedia();
   }, []);
+
 
   const createPeer = () => {
     peerRef.current = new RTCPeerConnection({
@@ -52,6 +68,7 @@ const VideoCall  : React.FC = () => {
     // Receive other user's video
     peerRef.current.ontrack = (event) => {
       if (remoteVideoRef.current) {
+
         remoteVideoRef.current.srcObject = event.streams[0];
       }
     };
@@ -63,8 +80,11 @@ const VideoCall  : React.FC = () => {
           to: partnerIdRef.current,
           data: event.candidate,
         });
+
       }
     };
+    setMatched(false)
+    setConnected(true)
   };
 
   const handelStart = async () => {
@@ -74,11 +94,9 @@ const VideoCall  : React.FC = () => {
     socket.emit("start-search");
 
     socket.on("matched", async ({ partnerId, role, partner }) => {
-      console.log(partner);
-
-      setConnected(true)
-      console.log("partner id:", partnerId);
+      setSearching(false)
       setPartner(partner);
+      setMatched(true)
       partnerIdRef.current = partnerId;
       createPeer();
 
@@ -124,18 +142,73 @@ const VideoCall  : React.FC = () => {
     });
   };
 
+
+  const handleDisconnect = () => {
+    socket.emit("end-call");
+    cleanupConnection();
+  };
+
+useEffect(() => {
+  socket.on("partner-disconnected", () => {
+    console.log("Partner disconnected");
+
+    cleanupConnection();
+
+    // 🔁 Optional: auto re-search (Azar behavior)
+    setSearching(true);
+    socket.emit("start-search");
+  });
+
+  return () => {
+    socket.off("partner-disconnected");
+  };
+}, []);
+
+
+  const cleanupConnection = () => {
+    peerRef.current?.close();
+    peerRef.current = null;
+
+    partnerIdRef.current = null;
+    setPartner(null);
+
+    setConnected(false);
+    setMatched(false);
+    setSearching(false);
+
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = null;
+    }
+  };
+
+
   return (
     <div className="h-full flex flex-col">
       <div className="flex gap-3 h-full">
         {/* LOCAL */}
         <div className="w-1/2 rounded-xl overflow-hidden bg-gray-200 relative">
-          <video
-            ref={localVideoRef}
-            autoPlay
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-          />
+          {hasMediaPermission === false &&
+            <div className="relative w-full bg-white h-full flex items-center justify-center">
+              <div className="absolute inset-0 border border-gray-200 rounded-xl">
+                <img className="object-cover w-full h-full rounded-xl" src="/hero-bg.png" alt="" />
+              </div>
+
+              <div className="z-99 text-center">
+                <h1 className="text-black font-semibold text-5xl">LOCA</h1>
+                <p className="mt-5">3,322 are matching now!</p>
+              </div>
+
+            </div>}
+          {hasMediaPermission === true && (
+            <video
+              ref={localVideoRef}
+              autoPlay
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            />
+          )}
+
           {!searching && !matched && !connected && (
             <button
               onClick={handelStart}
@@ -153,9 +226,8 @@ const VideoCall  : React.FC = () => {
 
           {searching && !matched && <StreamLoading />}
 
-          {/* {matched && !connected && <UserMatched />} */}
-          {/* <UserMatched /> */}
-
+          {matched && !connected && <UserMatched />}
+          
           {connected && <>
             <video
               ref={remoteVideoRef}
@@ -164,7 +236,7 @@ const VideoCall  : React.FC = () => {
               className="w-full h-full object-cover"
             />
             <div className="absolute bottom-6 left-0 px-6 flex items-center justify-between w-full">
-              <h1 className="text-3xl text-white font-bold">Azar</h1>
+              <h1 className="text-3xl text-white font-bold">LOCA</h1>
               <div className="flex items-center gap-2 text-white">
                 <img src={partner?.image} alt="" className="w-8 h-8 rounded-full" />
                 <div>
@@ -180,10 +252,10 @@ const VideoCall  : React.FC = () => {
         </div>
       </div>
 
-      {searching && (
+      {showControls && (
         <div className="flex items-center justify-between mt-3 animate-slideUp">
           <div className="flex items-center gap-2">
-            <button className="bg-black text-white p-3 rounded-xl cursor-pointer">esc</button>
+            <button  onClick={handleDisconnect} className="bg-black text-white p-3 rounded-xl cursor-pointer">esc</button>
             <div className="text-sm">
               <h1 className="font-semibold">End Video Chat</h1>
               <p>Press esc key to end video chat</p>
@@ -199,7 +271,7 @@ const VideoCall  : React.FC = () => {
             </button>
           </div>
         </div>
-      )} 
+      )}
     </div>
   );
 };
