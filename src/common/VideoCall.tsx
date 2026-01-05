@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-// import SteamLoading from "./Loading/SteamLoading";
 import { HiOutlineArrowRight } from "react-icons/hi";
 import { socket } from "../lib/soket";
 import { useUser } from "../context/UserContext";
@@ -227,7 +226,7 @@ useEffect(() => {
           {searching && !matched && <StreamLoading />}
 
           {matched && !connected && <UserMatched />}
-          
+
           {connected && <>
             <video
               ref={remoteVideoRef}
