@@ -18,8 +18,6 @@ const Signin: React.FC = () => {
                     access_token: tokenResponse.access_token,
                 });
                 const user = res.data.user
-                localStorage.setItem("token", JSON.stringify(res.data.token))
-                localStorage.setItem("user", JSON.stringify(res.data.user))
                 setUser(res.data.user)
                 if (!user.onboarding) {
                     setOnboarding(true)

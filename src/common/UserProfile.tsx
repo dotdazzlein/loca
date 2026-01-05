@@ -2,6 +2,7 @@ import { RxCross2 } from "react-icons/rx";
 import { useUser } from "../context/UserContext";
 import { createPortal } from "react-dom";
 import Portal from "./Portal";
+import api from "../lib/api";
 
 type Props = {
   open: boolean;
@@ -12,16 +13,17 @@ const UserProfile = ({ open, onClose }: Props) => {
   if (!open) return null;
   const { user, setUser, setEditProfile } = useUser()
 
-  const handleLogout = () => {
-    try {
-      localStorage.removeItem("user")
-      setUser(null)
-      onClose()
-    } catch (error) {
-      console.log(error);
+  if (!user) return
 
+  const logout = async () => {
+    try {
+      await api.post(`/user/logout`);
+    } catch (error) {
+      console.error("Logout request failed:", error);
+    } finally {
+      setUser(null);
     }
-  }
+  };
 
   const handleEditProfile = () => {
     setEditProfile(true)
@@ -38,7 +40,7 @@ const UserProfile = ({ open, onClose }: Props) => {
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full overflow-hidden">
                 <img
-                  src={user.image || "https://i.pinimg.com/736x/9e/83/75/9e837528f01cf3f42119c5aeeed1b336.jpg"}
+                  src={user?.image || "https://i.pinimg.com/736x/9e/83/75/9e837528f01cf3f42119c5aeeed1b336.jpg"}
                   alt="profile"
                 />
               </div>
@@ -61,7 +63,7 @@ const UserProfile = ({ open, onClose }: Props) => {
             <MenuItem label="Edit Profile" handleClick={handleEditProfile} />
             {/* <MenuItem label="More" /> */}
             <MenuItem label="Contact us" handleClick={handleEditProfile} />
-            <MenuItem label="Log out" danger handleClick={handleLogout} />
+            <MenuItem label="Log out" danger handleClick={logout} />
           </div>
         </div>
       </div>

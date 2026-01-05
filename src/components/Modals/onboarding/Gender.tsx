@@ -1,9 +1,14 @@
 import { useState } from 'react'
+import api from '../../../lib/api';
 
 const Gender = ({onNext} : {onNext : () => void }) => {
     const [selectedGender, setSelectedGender] = useState<string | null>(null)
 
     const genders = ['Male', 'Female', 'Others']
+        const handleSave = async () => {
+        await api.patch("/user/profile", { gender : selectedGender });
+        onNext();
+    };
 
     return (
         <div className='py-5 h-full flex flex-col justify-between'>
@@ -28,7 +33,7 @@ const Gender = ({onNext} : {onNext : () => void }) => {
 
             </div>
             <div>
-                <button onClick={onNext} className='bg-primary cursor-pointer text-white w-full py-3  rounded-3xl font-semibold'>Next</button>
+                <button onClick={handleSave} className='bg-primary relative cursor-pointer text-white w-full py-3  rounded-3xl font-semibold'>Next</button>
             </div>
         </div>
     )

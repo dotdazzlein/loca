@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, type SetStateAction } from 'react';
+import api from '../lib/api';
 
 export interface User {
   id: string;
@@ -8,7 +9,7 @@ export interface User {
   image?: string;
   provider?: 'google' | 'email' | 'x' | 'phone';
   createdAt?: string;
-  gender : string;
+  gender: string;
 }
 
 interface UserContextType {
@@ -16,15 +17,12 @@ interface UserContextType {
   setUser: any;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (userData: User) => void;
-  logout: () => void;
-  updateUser: (userData: Partial<User>) => void;
   signinModal: boolean;
   setSigninModal: React.Dispatch<SetStateAction<boolean>>
   onboarding: boolean;
   setOnboarding: React.Dispatch<SetStateAction<boolean>>;
-  editProfile : boolean;
-  setEditProfile : React.Dispatch<SetStateAction<boolean>>
+  editProfile: boolean;
+  setEditProfile: React.Dispatch<SetStateAction<boolean>>
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -35,57 +33,39 @@ export function UserProvider({ children }: { children: any }) {
   const [isMounted, setIsMounted] = useState(false);
 
   // components states
-  const [signinModal,setSigninModal] = useState<boolean>(false)
-  const [onboarding, setOnboarding] = useState<boolean>(false)
-  const [editProfile,setEditProfile] = useState<boolean>(false)
+  const [signinModal, setSigninModal] = useState<boolean>(false)
+  const [onboarding, setOnboarding] = useState<boolean>(true)
+  const [editProfile, setEditProfile] = useState<boolean>(false)
 
   useEffect(() => {
-    try {
-      
-    } catch (error) {
-      
-    }
-     const user =  localStorage.getItem('user')
-     console.log(user);
-     if(user){
-      setUser(JSON.parse(user))
-     }
-     
-  },[])
+    const fetchUser = async () => {
+      try {
+        const res = await api.get(`/user/me`);
+        setUser(res.data.user);
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
+    fetchUser();
+  }, []);
 
   const login = (userData: User) => {
     setUser(userData);
   };
 
-  const logout = () => {
-    setUser(null);
-    if (isMounted) {
-      try {
-        localStorage.removeItem('user');
-      } catch (error) {
-        console.error('Error removing from localStorage:', error);
-      }
-    }
-  };
-
-  const updateUser = (userData: Partial<User>) => {
-    if (user) {
-      setUser({ ...user, ...userData });
-    }
-  };
 
   const value: UserContextType = {
     user,
     setUser,
     isLoading,
     isAuthenticated: !!user,
-    login,
-    logout,
-    updateUser,
-    signinModal,setSigninModal,
+    signinModal, setSigninModal,
     onboarding, setOnboarding,
-    editProfile,setEditProfile
+    editProfile, setEditProfile
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
