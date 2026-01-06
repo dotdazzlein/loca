@@ -46,13 +46,13 @@ const Onboarding = () => {
         <div className='w-full h-full absolute flex items-center justify-center bg-black/20' onClick={handleClose}>
             <div className='w-100 h-[500px] transition-all duration-700 rounded-2xl bg-secondary text-black p-6 shadow-2xl overflow-auto' onClick={(e) => e.stopPropagation()}>
                 <div className='flex items-center justify-between'>
-                    <button 
+                    <button
                         onClick={handleBack}
                         className='cursor-pointer text-xl'
                     >
                         <IoChevronBackOutline />
                     </button>
-                    <button 
+                    <button
                         onClick={handleClose}
                         className='cursor-pointer text-xl'
                     >

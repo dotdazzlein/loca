@@ -5,33 +5,30 @@ import Spinner from '../../Loading/Spinner';
 
 const Name = ({ onNext }: { onNext: () => void }) => {
 
-  const { user,setUser } = useUser()
+  const { user, setUser } = useUser()
   const [name, setName] = useState<string>(user?.name)
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("")
 
   const handleSubmit = async () => {
-    if(user.name == name){
-      return onNext()
-    }
-    if (name == "") {
-      return setError("Please enter name")
-    }
-    console.log("l");
-    try {
-      if (!user) return
-      setLoading(true)
-      setError("")
+    validator()
 
-      const res = await api.patch("/user/profile", { name });
-      setUser(res.data.user)
-      onNext()
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false)
-    }
+      try {
+        setLoading(true)
+        setError("")
+        const res = await api.patch("/user/profile", { name });
+        setUser(res.data.user)
+        onNext()
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false)
+      }
   };
+
+  const validator = () => {
+
+  }
 
   return (
     <div className='py-5 h-full flex flex-col justify-between'>
@@ -43,9 +40,9 @@ const Name = ({ onNext }: { onNext: () => void }) => {
         <p className='text-red-500 text-sm'>{error}</p>
       </div>
       <div>
-        <button onClick={handleSubmit} 
-        disabled={loading && name == ""} 
-        className={`${name?.length > 0 ? "bg-primary" : "bg-gray-300"} cursor-pointer text-white w-full py-3  rounded-3xl font-semibold`}>
+        <button onClick={handleSubmit}
+          disabled={loading && name == ""}
+          className={`${name?.length > 0 ? "bg-primary" : "bg-gray-300"} cursor-pointer text-white w-full py-3  rounded-3xl font-semibold`}>
           {loading ? <Spinner /> : "Next"}
         </button>
       </div>

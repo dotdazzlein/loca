@@ -131,7 +131,7 @@ function EditName({editNameModal, setEditNameModal} : {editNameModal : boolean, 
         {/* Info Text */}
         <p className="mb-6 text-xs text-gray-500 leading-relaxed">
           To change name, please download mobile app and
-          subscribe to LOCA plus.
+          subscribe to Snack plus.
         </p>
 
         {/* Save Button (Disabled State) */}

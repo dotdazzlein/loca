@@ -5,27 +5,30 @@ import PhoneSignin from './PhoneSignin'
 import { useGoogleLogin } from '@react-oauth/google'
 import api from '../../lib/api'
 import Portal from '../../common/Portal'
+import Spinner from '../Loading/Spinner'
+
 const Signin: React.FC = () => {
 
     const { signinModal, setSigninModal, setOnboarding, setUser } = useUser()
     const [phoneModal, setPhoneModal] = useState<boolean>(false)
-
+    const [loading, setLoading] = useState<boolean>(false)
     const handleGoogleSignin = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
-
             try {
+                setLoading(true)
                 const res = await api.post("/auth/google", {
                     access_token: tokenResponse.access_token,
                 });
                 const user = res.data.user
                 setUser(res.data.user)
-                if (!user.onboarding) {
+                if (res.data.newUser) {
                     setOnboarding(true)
                 }
             } catch (error) {
                 console.log(error);
             } finally {
                 setSigninModal(false)
+                setLoading(false)
             }
         },
     });
@@ -44,7 +47,7 @@ const Signin: React.FC = () => {
                     </button>
 
                     {/* Logo */}
-                    <h1 className="text-center text-3xl font-bold mb-2">LOCA</h1>
+                    <h1 className="text-center text-3xl font-bold mb-2">Snack</h1>
 
                     {/* Count */}
                     <h2 className="text-center text-3xl font-bold mt-4">
@@ -69,8 +72,10 @@ const Signin: React.FC = () => {
                             onClick={handleGoogleSignin}
                             className="w-full bg-white border border-gray-200 text-black py-3 rounded-full font-semibold flex items-center justify-center gap-2 cursor-pointer transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            <img src="/icons/google.svg" className="h-5" />
-                            Continue with Google
+                            {loading ? <Spinner /> : <>
+                                <img src="/icons/google.svg" className="h-5" />
+                                <p> Continue with Google</p>
+                            </>}
                         </button>
                         <button className="w-full bg-primary text-white py-3 rounded-full font-semibold flex items-center justify-center gap-2 cursor-pointer">
                             <img src="/icons/x.svg" className="w-6" />

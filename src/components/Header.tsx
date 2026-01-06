@@ -10,7 +10,7 @@ const Header = () => {
   return (
     <>
       <div className="flex items-center justify-between px-5 py-3">
-        <Link to="/" className="text-2xl font-bold">LOCA</Link>
+        <Link to="/" className="text-2xl font-bold">Snack</Link>
         {user ? (
           <div
             className="w-10 h-10 cursor-pointer rounded-full overflow-hidden"

@@ -5,14 +5,14 @@ import { useUser } from "../context/UserContext";
 import ScrollGrid from "../components/UI/ScrollGrid";
 import StreamLoading from "../components/Loading/StreamLoading";
 import UserMatched from "../components/UI/UserMatched";
+import { IoVideocamOutline } from "react-icons/io5";
 
 const VideoCall: React.FC = () => {
-  const { user } = useUser();
+  const { user, setSigninModal } = useUser();
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
   const [hasMediaPermission, setHasMediaPermission] = useState<boolean | null>(true);
   const [permissionError, setPermissionError] = useState<string | null>(null);
-
 
   const [partner, setPartner] = useState<{ name?: string; image?: string; } | null>(null);
 
@@ -87,6 +87,9 @@ const VideoCall: React.FC = () => {
   };
 
   const handelStart = async () => {
+    if (!user) {
+      return setSigninModal(true)
+    }
     socket.connect();
     setSearching(true);
 
@@ -147,21 +150,21 @@ const VideoCall: React.FC = () => {
     cleanupConnection();
   };
 
-useEffect(() => {
-  socket.on("partner-disconnected", () => {
-    console.log("Partner disconnected");
+  useEffect(() => {
+    socket.on("partner-disconnected", () => {
+      console.log("Partner disconnected");
 
-    cleanupConnection();
+      cleanupConnection();
 
-    // 🔁 Optional: auto re-search (Azar behavior)
-    setSearching(true);
-    socket.emit("start-search");
-  });
+      // 🔁 Optional: auto re-search (Azar behavior)
+      setSearching(true);
+      socket.emit("start-search");
+    });
 
-  return () => {
-    socket.off("partner-disconnected");
-  };
-}, []);
+    return () => {
+      socket.off("partner-disconnected");
+    };
+  }, []);
 
 
   const cleanupConnection = () => {
@@ -211,9 +214,9 @@ useEffect(() => {
           {!searching && !matched && !connected && (
             <button
               onClick={handelStart}
-              className="absolute cursor-pointer bottom-6 right-6 bg-white px-5 py-3 rounded-3xl font-bold"
+              className="absolute flex items-center justify-center gap-2 cursor-pointer bottom-6 right-6 bg-white px-5 py-3 rounded-3xl font-bold"
             >
-              Start Video Chat
+            <IoVideocamOutline size={22} />  Start Video Chat
             </button>
           )}
 
@@ -254,7 +257,7 @@ useEffect(() => {
       {showControls && (
         <div className="flex items-center justify-between mt-3 animate-slideUp">
           <div className="flex items-center gap-2">
-            <button  onClick={handleDisconnect} className="bg-black text-white p-3 rounded-xl cursor-pointer">esc</button>
+            <button onClick={handleDisconnect} className="bg-black text-white p-3 rounded-xl cursor-pointer">esc</button>
             <div className="text-sm">
               <h1 className="font-semibold">End Video Chat</h1>
               <p>Press esc key to end video chat</p>

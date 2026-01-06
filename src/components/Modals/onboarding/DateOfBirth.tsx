@@ -1,14 +1,26 @@
 import { useState } from 'react'
 import api from '../../../lib/api';
 import { useUser } from '../../../context/UserContext';
+import Spinner from '../../Loading/Spinner';
 
 const DateOfBirth = ({ onNext }: { onNext: () => void }) => {
-    const {user} = useUser()
-    const [dateOfBirth, setDateOfBirth] = useState<string>(user.dateOfBirht || '')
+    const { user, setUser } = useUser()
+    const [dateOfBirth, setDateOfBirth] = useState<string>(user?.dateOfBirht || '')
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string>("")
 
     const handleSave = async () => {
-        await api.patch("/user/profile", { dateOfBirth });
-        onNext();
+        onNext()
+        try {
+            setLoading(true)
+            const res = await api.patch("/user/profile", { dateOfBirth });
+            setUser(res.data.user)
+            onNext();
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false)
+        }
     };
 
     return (
@@ -26,7 +38,12 @@ const DateOfBirth = ({ onNext }: { onNext: () => void }) => {
                 />
             </div>
             <div>
-                <button onClick={handleSave} className='bg-primary cursor-pointer text-white w-full py-3 rounded-3xl font-semibold'>Next</button>
+                <button
+                    onClick={handleSave}
+                    disabled={loading || !dateOfBirth}
+                    className={`${dateOfBirth ? "bg-primary" : "bg-gray-300"} cursor-pointer text-white w-full py-3 rounded-3xl font-semibold`}>
+                    {loading ? <Spinner /> : "Next"}
+                </button>
             </div>
         </div>
     )
