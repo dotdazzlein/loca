@@ -185,12 +185,12 @@ const VideoCall: React.FC = () => {
 
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex gap-3 h-full">
+    <div className=" min-h-[calc(100vh-500px)] flex flex-col">
+      <div className="flex gap-3 min-h-[calc(100vh-500px)] max-h-screen">
         {/* LOCAL */}
-        <div className="w-1/2 rounded-xl overflow-hidden bg-gray-200 relative">
+        <div className="xl:w-1/2 w-full rounded-xl overflow-hidden bg-gray-200 relative">
           {hasMediaPermission === false &&
-            <div className="relative w-full bg-white h-full flex items-center justify-center">
+            <div className="relative w-full bg-white  flex items-center justify-center">
               <div className="absolute inset-0 border border-gray-200 rounded-xl">
                 <img className="object-cover w-full h-full rounded-xl" src="/hero-bg.png" alt="" />
               </div>
@@ -212,18 +212,20 @@ const VideoCall: React.FC = () => {
           )}
 
           {!searching && !matched && !connected && (
+            <div className="absolute w-full bottom-6 left-0 px-5 flex items-center justify-end">
+
             <button
               onClick={handelStart}
-              className="absolute flex items-center justify-center gap-2 cursor-pointer bottom-6 right-6 bg-white px-5 py-3 rounded-3xl font-bold"
+              className="w-full xl:w-fit flex items-center justify-center gap-2 cursor-pointer bg-white px-5 py-3 rounded-3xl font-bold"
             >
-            <IoVideocamOutline size={22} />  Start Video Chat
+              <IoVideocamOutline size={22} />  Start Video Chat
             </button>
+            </div>
           )}
 
         </div>
 
-
-        <div className="w-1/2 relative rounded-xl bg-gray-200 overflow-hidden flex items-center justify-center">
+        <div className="xl:w-1/2 relative rounded-xl hidden bg-gray-200 overflow-hidden md:flex items-center justify-center">
           {!searching && !matched && !connected && <ScrollGrid />}
 
           {searching && !matched && <StreamLoading />}
@@ -235,7 +237,7 @@ const VideoCall: React.FC = () => {
               ref={remoteVideoRef}
               autoPlay
               playsInline
-              className="w-full h-full object-cover"
+              className="w-full object-cover"
             />
             <div className="absolute bottom-6 left-0 px-6 flex items-center justify-between w-full">
               <h1 className="text-3xl text-white font-bold">LOCA</h1>

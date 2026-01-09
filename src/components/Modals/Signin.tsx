@@ -4,7 +4,7 @@ import { MdOutlinePhoneIphone } from 'react-icons/md'
 import PhoneSignin from './PhoneSignin'
 import { useGoogleLogin } from '@react-oauth/google'
 import api from '../../lib/api'
-import Portal from '../../common/Portal'
+import Portal from './Portal'
 import Spinner from '../Loading/Spinner'
 
 const Signin: React.FC = () => {

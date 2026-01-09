@@ -1,7 +1,7 @@
 import { RxCross2 } from "react-icons/rx";
 import { useUser } from "../context/UserContext";
 import { createPortal } from "react-dom";
-import Portal from "./Portal";
+import Portal from "../components/Modals/Portal";
 import api from "../lib/api";
 
 type Props = {

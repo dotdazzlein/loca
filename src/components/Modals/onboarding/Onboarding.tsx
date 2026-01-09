@@ -6,6 +6,7 @@ import Avatar from './Avatar'
 import { IoChevronBackOutline } from 'react-icons/io5'
 import { RxCross2 } from 'react-icons/rx'
 import { useUser } from '../../../context/UserContext'
+import Portal from '../Portal'
 
 const Onboarding = () => {
     const { onboarding, setOnboarding } = useUser()
@@ -43,25 +44,27 @@ const Onboarding = () => {
     const CurrentStepComponent = steps[currentStep].component
 
     return (
-        <div className='w-full h-full absolute flex items-center justify-center bg-black/20' onClick={handleClose}>
-            <div className='w-100 h-[500px] transition-all duration-700 rounded-2xl bg-secondary text-black p-6 shadow-2xl overflow-auto' onClick={(e) => e.stopPropagation()}>
-                <div className='flex items-center justify-between'>
-                    <button
-                        onClick={handleBack}
-                        className='cursor-pointer text-xl'
-                    >
-                        <IoChevronBackOutline />
-                    </button>
-                    <button
-                        onClick={handleClose}
-                        className='cursor-pointer text-xl'
-                    >
-                        <RxCross2 />
-                    </button>
+        <Portal >
+            <div className='w-full h-full absolute flex items-center justify-center bg-black/20' onClick={handleClose}>
+                <div className='w-100 h-[500px] transition-all duration-700 rounded-2xl bg-secondary text-black p-6 shadow-2xl overflow-auto' onClick={(e) => e.stopPropagation()}>
+                    <div className='flex items-center justify-between'>
+                        <button
+                            onClick={handleBack}
+                            className='cursor-pointer text-xl'
+                        >
+                            <IoChevronBackOutline />
+                        </button>
+                        <button
+                            onClick={handleClose}
+                            className='cursor-pointer text-xl'
+                        >
+                            <RxCross2 />
+                        </button>
+                    </div>
+                    <CurrentStepComponent onNext={handleNext} />
                 </div>
-                <CurrentStepComponent onNext={handleNext} />
             </div>
-        </div>
+        </Portal>
     )
 }
 

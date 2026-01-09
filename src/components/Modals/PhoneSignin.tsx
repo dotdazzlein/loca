@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react'
 import { IoChevronBackOutline } from 'react-icons/io5'
 import { RxCross2 } from 'react-icons/rx'
 import { useUser } from '../../context/UserContext'
-import Portal from '../../common/Portal'
+import Portal from './Portal'
 
 const PhoneSignin = ({ setPhoneModal }: {
     setPhoneModal: React.Dispatch<React.SetStateAction<boolean>>

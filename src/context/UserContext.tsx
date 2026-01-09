@@ -34,20 +34,18 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   // UI states
   const [signinModal, setSigninModal] = useState(false);
-  const [onboarding, setOnboarding] = useState(true);
+  const [onboarding, setOnboarding] = useState(false);
   const [editProfile, setEditProfile] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await api.get("/user/me", {
-          withCredentials: true, // 🔐 IMPORTANT for cookies
-        });
+        const res = await api.get("/user/me",);
         setUser(res.data.user);
       } catch (error) {
         setUser(null);
       } finally {
-        setIsLoading(false); // 🔥 AUTH CHECK DONE
+        setIsLoading(false);
       }
     };
 
@@ -67,10 +65,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     setEditProfile,
   };
 
-  // 🔥 BLOCK RENDERING UNTIL AUTH CHECK FINISHES
+
   if (isLoading) {
     return null; 
-    // OR return <FullScreenLoader />
   }
 
   return (

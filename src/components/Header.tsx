@@ -9,13 +9,13 @@ const Header = () => {
 
   return (
     <>
-      <div className="flex items-center justify-between px-5 py-3">
+      <div className="flex h-16 items-center justify-between px-5 py-3">
         <Link to="/" className="text-2xl font-bold">Snack</Link>
         {user ? (
           <div
             className="w-10 h-10 cursor-pointer rounded-full overflow-hidden"
             onClick={() => setOpenProfile(true)} >
-            <img src={user?.image || "https://i.pinimg.com/736x/9e/83/75/9e837528f01cf3f42119c5aeeed1b336.jpg"} alt="avatar" />
+            <img src={user?.image || "/no-avatar.jpg"} alt="avatar" />
           </div>
         ) : (
           <button
