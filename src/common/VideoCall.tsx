@@ -51,40 +51,58 @@ const VideoCall: React.FC = () => {
     getMedia();
   }, []);
 
+  const ICE_SERVERS: RTCIceServer[] = [
+    { urls: "stun:stun.relay.metered.ca:80" },
+    {
+      urls: "turn:global.relay.metered.ca:80",
+      username: "0b8a33d3ea4e37532c1b3f77",
+      credential: "xmK1JWTfC1YkfzLf",
+    },
+    {
+      urls: "turn:global.relay.metered.ca:80?transport=tcp",
+      username: "0b8a33d3ea4e37532c1b3f77",
+      credential: "xmK1JWTfC1YkfzLf",
+    },
+    {
+      urls: "turn:global.relay.metered.ca:443",
+      username: "0b8a33d3ea4e37532c1b3f77",
+      credential: "xmK1JWTfC1YkfzLf",
+    },
+    {
+      urls: "turns:global.relay.metered.ca:443?transport=tcp",
+      username: "0b8a33d3ea4e37532c1b3f77",
+      credential: "xmK1JWTfC1YkfzLf",
+    },
+  ];
 
   const createPeer = () => {
     peerRef.current = new RTCPeerConnection({
-      iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
-      ],
+      iceServers: ICE_SERVERS,
     });
 
-    // Send your camera to the other user
     localStreamRef.current?.getTracks().forEach((track) => {
       peerRef.current?.addTrack(track, localStreamRef.current!);
     });
 
-    // Receive other user's video
     peerRef.current.ontrack = (event) => {
       if (remoteVideoRef.current) {
-
         remoteVideoRef.current.srcObject = event.streams[0];
       }
     };
 
-    // Send network info via socket
     peerRef.current.onicecandidate = (event) => {
       if (event.candidate && partnerIdRef.current) {
-        socket.emit("signal", {
-          to: partnerIdRef.current,
-          data: event.candidate,
+        socket.emit("ice-candidate", {
+          roomId: partnerIdRef.current,
+          candidate: event.candidate,
         });
-
       }
     };
-    setMatched(false)
-    setConnected(true)
+
+    setMatched(false);
+    setConnected(true);
   };
+
 
   const handelStart = async () => {
     if (!user) {
@@ -95,53 +113,73 @@ const VideoCall: React.FC = () => {
 
     socket.emit("start-search");
 
-    socket.on("matched", async ({ partnerId, role, partner }) => {
-      setSearching(false)
+    socket.on("match-found", async ({ roomId, role, partner }) => {
+      setSearching(false);
       setPartner(partner);
-      setMatched(true)
-      partnerIdRef.current = partnerId;
+      setMatched(true);
+      partnerIdRef.current = roomId;
+
       createPeer();
 
-      // ONLY caller creates offer
-      if (role === "caller") {
+      if (role === "offerer") {
         const offer = await peerRef.current!.createOffer();
         await peerRef.current!.setLocalDescription(offer);
 
-        socket.emit("signal", {
-          to: partnerId,
-          data: offer,
-        });
+        socket.emit("offer", { roomId, offer });
       }
     });
 
-    socket.on("signal", async ({ from, data }) => {
+    socket.on("offer", async ({ offer }) => {
       if (!peerRef.current) createPeer();
 
-      // If you receive an offer
-      if (data.type === "offer") {
-        partnerIdRef.current = from;
+      await peerRef.current!.setRemoteDescription(offer);
 
-        await peerRef.current!.setRemoteDescription(data);
+      const answer = await peerRef.current!.createAnswer();
+      await peerRef.current!.setLocalDescription(answer);
 
-        const answer = await peerRef.current!.createAnswer();
-        await peerRef.current!.setLocalDescription(answer);
-
-        socket.emit("signal", {
-          to: from,
-          data: answer,
-        });
-      }
-
-      // If you receive an answer
-      if (data.type === "answer") {
-        await peerRef.current!.setRemoteDescription(data);
-      }
-
-      // ICE candidates
-      if (data.candidate) {
-        await peerRef.current!.addIceCandidate(data);
-      }
+      socket.emit("answer", {
+        roomId: partnerIdRef.current,
+        answer,
+      });
     });
+
+    socket.on("answer", async ({ answer }) => {
+      await peerRef.current!.setRemoteDescription(answer);
+    });
+
+    socket.on("ice-candidate", async ({ candidate }) => {
+      await peerRef.current!.addIceCandidate(candidate);
+    });
+
+
+    // socket.on("signal", async ({ from, data }) => {
+    //   if (!peerRef.current) createPeer();
+
+    //   // If you receive an offer
+    //   if (data.type === "offer") {
+    //     partnerIdRef.current = from;
+
+    //     await peerRef.current!.setRemoteDescription(data);
+
+    //     const answer = await peerRef.current!.createAnswer();
+    //     await peerRef.current!.setLocalDescription(answer);
+
+    //     socket.emit("signal", {
+    //       to: from,
+    //       data: answer,
+    //     });
+    //   }
+
+    //   // If you receive an answer
+    //   if (data.type === "answer") {
+    //     await peerRef.current!.setRemoteDescription(data);
+    //   }
+
+    //   // ICE candidates
+    //   if (data.candidate) {
+    //     await peerRef.current!.addIceCandidate(data);
+    //   }
+    // });
   };
 
 
@@ -162,8 +200,12 @@ const VideoCall: React.FC = () => {
     });
 
     return () => {
-      socket.off("partner-disconnected");
+      socket.off("match-found");
+      socket.off("offer");
+      socket.off("answer");
+      socket.off("ice-candidate");
     };
+
   }, []);
 
 
@@ -214,12 +256,12 @@ const VideoCall: React.FC = () => {
           {!searching && !matched && !connected && (
             <div className="absolute w-full bottom-6 left-0 px-5 flex items-center justify-end">
 
-            <button
-              onClick={handelStart}
-              className="w-full xl:w-fit flex items-center justify-center gap-2 cursor-pointer bg-white px-5 py-3 rounded-3xl font-bold"
-            >
-              <IoVideocamOutline size={22} />  Start Video Chat
-            </button>
+              <button
+                onClick={handelStart}
+                className="w-full xl:w-fit flex items-center justify-center gap-2 cursor-pointer bg-white px-5 py-3 rounded-3xl font-bold"
+              >
+                <IoVideocamOutline size={22} />  Start Video Chat
+              </button>
             </div>
           )}
 

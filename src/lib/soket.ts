@@ -1,7 +1,7 @@
+import { io } from "socket.io-client";
 
-import { io, Socket } from "socket.io-client";
-
-export const socket: Socket = io(import.meta.env.VITE_SOCKET_URL, {
+export const socket = io(import.meta.env.VITE_SOCKET_URL, {
+  withCredentials: true,
   autoConnect: false,
-  withCredentials : true
+  transports: ["websocket"], // 🚨 CRITICAL
 });
